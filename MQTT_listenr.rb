@@ -2,9 +2,9 @@ require 'mqtt'
 require 'json'  
 
 # MQTT connection settings as variables
-mqtt_host = '127.0.0.1'   # IP address of the MQTT broker
+mqtt_host = 'localhost'   # IP address of the MQTT broker
 mqtt_port = 1883          # Port of the MQTT broker
-mqtt_topic = 'test/topic' # Topic to subscribe to
+mqtt_topic = 'test/#' # Topic to subscribe to
 
 def listen_for_messages(host, port, topic)
   MQTT::Client.connect(host: host, port: port) do |client|
