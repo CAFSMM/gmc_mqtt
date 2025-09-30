@@ -1,0 +1,11 @@
+{
+    "mqtt": {
+        "host": "31.97.91.12",
+        "port": 1883,
+        "topic": "gmc/#"
+    },
+    "device":{
+        "name": "WS558 Smart Light Controller",
+        "euid": "24e124756c404098"
+    }
+}
