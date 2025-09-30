@@ -111,6 +111,8 @@ def send_json_message(host, port, topic, payload)
   MQTT::Client.connect(host: host, port: port) do |client|
     client.publish(topic, payload)
     puts "Sent JSON message to topic '#{topic}': #{payload}"
+    puts "-----------------------------------------------------------------"
+    puts
   end
 end
 
