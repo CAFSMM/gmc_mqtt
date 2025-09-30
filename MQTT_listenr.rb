@@ -80,6 +80,44 @@ def check_alert(host, port, json_payload)
         )
       )
   end
+
+  if json_payload && json_payload["button"] == 2
+    puts "Alert button released! Sending command to WS558..."
+    data_payload = "08" #message header
+    data_payload.concat(binary_to_hex("1111 1111 0000 0000")) #turn ALL off
+    puts "Data payload to send: #{hex_to_base64(data_payload)} (hex: #{data_payload})"
+      send_json_message(
+        host,
+        port,
+        "gmc/downlink/#{WS558_euid}",
+        JSON.generate(
+          {
+            "confirmed" => true,
+            "fPort" => 85,
+            "data" => hex_to_base64(data_payload)
+          }
+        )
+      )
+  end
+
+  if json_payload && json_payload["button"] == 3 #double press
+    puts "Alert button released! Sending command to WS558..."
+    data_payload = "08" #message header
+    data_payload.concat(binary_to_hex("0100 0000 0100 0000")) #turn ALL off
+    puts "Data payload to send: #{hex_to_base64(data_payload)} (hex: #{data_payload})"
+      send_json_message(
+        host,
+        port,
+        "gmc/downlink/#{WS558_euid}",
+        JSON.generate(
+          {
+            "confirmed" => true,
+            "fPort" => 85,
+            "data" => hex_to_base64(data_payload)
+          }
+        )
+      )
+  end
 end
 
 def configure_WS558(host, port, ws558_euid, json_payload)
