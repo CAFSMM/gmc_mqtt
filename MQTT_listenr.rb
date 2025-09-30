@@ -61,49 +61,24 @@ def listen_for_messages(host, port, topic)
 end
 
 def check_alert(host, port, json_payload)
-  puts "Processing alert payload: #{json_payload}"
-  if json_payload && json_payload["button"] == 1
-    puts "Alert button pressed! Sending command to WS558..."
+  if json_payload
+    puts "Processing alert payload: #{json_payload}"
     data_payload = "08" #message header
-    data_payload.concat(binary_to_hex("1000 0000 1000 0000")) #turn on 1#
-    puts "Data payload to send: #{hex_to_base64(data_payload)} (hex: #{data_payload})"
-      send_json_message(
-        host,
-        port,
-        "gmc/downlink/#{WS558_euid}",
-        JSON.generate(
-          {
-            "confirmed" => true,
-            "fPort" => 85,
-            "data" => hex_to_base64(data_payload)
-          }
-        )
-      )
-  end
 
-  if json_payload && json_payload["button"] == 2
-    puts "Alert button released! Sending command to WS558..."
-    data_payload = "08" #message header
-    data_payload.concat(binary_to_hex("1111 1111 0000 0000")) #turn ALL off
-    puts "Data payload to send: #{hex_to_base64(data_payload)} (hex: #{data_payload})"
-      send_json_message(
-        host,
-        port,
-        "gmc/downlink/#{WS558_euid}",
-        JSON.generate(
-          {
-            "confirmed" => true,
-            "fPort" => 85,
-            "data" => hex_to_base64(data_payload)
-          }
-        )
-      )
-  end
+    case json_payload["button"]
+    when 1
+      puts "Alert button single pressed!"
+      data_payload << binary_to_hex("1000 0000 1000 0000")
+    when 2
+      puts "Alert button long pressed!"
+      data_payload << binary_to_hex("1111 1111 0000 0000")
+    when 3
+      puts "Alert button double pressed!"
+      data_payload << binary_to_hex("0100 0000 0100 0000")
+    else
+      return puts "Error: Unknown button action: #{json_payload['button']}"
+    end
 
-  if json_payload && json_payload["button"] == 3 #double press
-    puts "Alert button released! Sending command to WS558..."
-    data_payload = "08" #message header
-    data_payload.concat(binary_to_hex("0100 0000 0100 0000")) #turn ALL off
     puts "Data payload to send: #{hex_to_base64(data_payload)} (hex: #{data_payload})"
       send_json_message(
         host,
@@ -117,8 +92,11 @@ def check_alert(host, port, json_payload)
           }
         )
       )
+  else
+    puts "No valid JSON payload to process."
   end
 end
+
 
 def configure_WS558(host, port, ws558_euid, json_payload)
   MQTT::Client.connect(host: host, port: port) do |client|
